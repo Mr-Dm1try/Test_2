@@ -64,8 +64,7 @@ void Server::Handle() {
 		cout << host << " подключился к порту " << ntohs(clientAddr.sin_port) << endl;
 	}
 
-	send(clientSock, "Buffer size: " + bufferSize, bufferSize, 0);
-
+	
 	char *buffer = new char[bufferSize];
 	while (true) {
 		ZeroMemory(buffer, bufferSize);
@@ -80,7 +79,7 @@ void Server::Handle() {
 			break;
 		}
 
-		cout << buffer;
+		cout << buffer << endl;
 		send(clientSock, buffer, bytesRecv + 1, 0);
 	}
 

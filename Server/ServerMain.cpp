@@ -20,14 +20,18 @@ int main() {
 		myServer = new Server;
 	}
 	catch (const string exc) {
-		excFlag = true;
-		cout << exc << endl;
+		cerr << exc << " Выход..." << endl;
+		exit(1);
+	}
+	catch (...) {
+		cerr << "Непредвиденная ошибка! Выход..." << endl;
 		exit(1);
 	}
 
 	do {
+		excFlag = false;
 		do {
-			cout << "\tВведите номер порта для сервера (>1023 и <65536)" << endl;
+			cout << "\tВведите номер порта для сервера (>1023 и <65536): ";
 			cin >> port;
 		} while (port <= 1023);
 
@@ -41,29 +45,41 @@ int main() {
 		}
 		catch (const string exc) {
 			excFlag = true;
-			cout << exc << endl;
+			cerr << exc << endl;
 			do {
 				cout << "Попробовать еще раз? (1/0)" << endl;
 				cin >> excSel;
-			} while (excSel != 1 || excSel != 0);
-			if (!excSel) exit(1);
+			} while (excSel != 1 && excSel != 0);
+			if (!excSel) {
+				cout << "Выход..." << endl;
+				myServer->Close();
+				exit(1);
+			}
+		}
+		catch (...) {
+			cerr << "Непредвиденная ошибка! Выход..." << endl;
+			exit(1);
 		}
 	} while (excFlag && excSel);
 
 	cout << "\tВведите количество обработок подключений (<1 для беск.): ";
 	cin >> count;
 
-	do
-	{
+	do {
 		try {
 			myServer->Handle();
 		}
 		catch (const string exc) {
-			cout << exc << endl;
+			cerr << exc << endl;
 		}
+		catch (...) {
+			cerr << "Непредвиденная ошибка! Выход..." << endl;
+			exit(1);
+		}
+
 		if (count >= 0) --count;
 	} while (count != 0);
-
+ 
 	myServer->Close();
 
 	system("pause");
