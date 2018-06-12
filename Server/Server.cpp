@@ -93,7 +93,7 @@ void Server::Handle() {
 
 void Server::FileReceive() {
 	char *buffer = new char[bufferSize];
-	string message, fName, tmp;
+	string message, fName;
 	ofstream fout;
 
 	ZeroMemory(buffer, bufferSize);
@@ -127,10 +127,7 @@ void Server::FileReceive() {
 
 		fout << buffer;
 		fout.close();
-
-		tmp = buffer;
-		if (tmp.size() < bufferSize)
-			break;
+				
 	}
 	
 	message = "File Received!";
