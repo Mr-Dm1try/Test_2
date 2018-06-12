@@ -36,17 +36,11 @@ void Server::Start(unsigned short port, unsigned short bufSize) {
 	else cout << "Начато прослушивание порта " << ntohs(servAddr.sin_port) << endl;
 }
 
-void Server::Close() {
-	closesocket(listenSock);
-	WSACleanup();
-	cout << "Сервер остановлен" << endl;
-}
-
 void Server::Handle() {
 	sockaddr_in clientAddr;
 	int clientSize = sizeof(clientAddr);
 
-	SOCKET clientSock = accept(listenSock, (sockaddr*)&clientAddr, &clientSize);
+	clientSock = accept(listenSock, (sockaddr*)&clientAddr, &clientSize);
 	if (clientSock == INVALID_SOCKET)
 		throw("Не получилось создать соединение!");
 
@@ -66,10 +60,14 @@ void Server::Handle() {
 
 	
 	char *buffer = new char[bufferSize];
+	string tmp, fEqual;
+	fEqual = "File";
+
 	while (true) {
 		ZeroMemory(buffer, bufferSize);
 
 		int bytesRecv = recv(clientSock, buffer, bufferSize, 0);
+		tmp = buffer;
 		if (bytesRecv == SOCKET_ERROR) {
 			cerr << "Ошибка получения данных! Клиент отсоединен!" << endl;
 			break;
@@ -78,10 +76,64 @@ void Server::Handle() {
 			cout << "Клиент отсоединен!" << endl;
 			break;
 		}
+		else {
+			cout << "CLIENT: " << buffer << endl;
+			send(clientSock, buffer, bytesRecv + 1, 0);
+		}
 
-		cout << buffer << endl;
-		send(clientSock, buffer, bytesRecv + 1, 0);
+		if (tmp == fEqual)
+			FileReceive();
 	}
 
 	closesocket(clientSock);
+}
+
+void Server::FileReceive() {
+	char *buffer = new char[bufferSize];
+	string message, fName, tmp;
+	ofstream fout;
+
+	ZeroMemory(buffer, bufferSize);
+
+	message = "Enter file name";
+	send(clientSock, message.c_str(), message.size() + 1, 0);
+	int bytesRecv = recv(clientSock, buffer, bufferSize, 0);
+	if (bytesRecv == SOCKET_ERROR) {
+		cerr << "Ошибка получения данных! Клиент отсоединен!" << endl;
+		return;
+	}
+	else if (bytesRecv == 0) {
+		cout << "Клиент отсоединен!" << endl;
+		return;
+	}
+	
+	fName = buffer;
+	while (true) {
+		fout.open(fName, ios_base::app /*| ios_base::binary*/);
+		
+		int bytesRecv = recv(clientSock, buffer, bufferSize, 0);
+		if (bytesRecv == SOCKET_ERROR) {
+			cerr << "Ошибка получения данных! Клиент отсоединен!" << endl;
+			return;
+		}
+		else if (bytesRecv == 0) {
+			break;
+		}
+
+		fout << buffer;
+		fout.close();
+
+		tmp = buffer;
+		if (tmp.size() < bufferSize)
+			break;
+	}
+	
+	message = "File Received!";
+	send(clientSock, message.c_str(), message.size() + 1, 0);
+}
+
+void Server::Close() {
+	closesocket(listenSock);
+	WSACleanup();
+	cout << "Сервер остановлен" << endl;
 }

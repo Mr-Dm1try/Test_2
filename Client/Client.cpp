@@ -53,9 +53,51 @@ void Client::Connect(string addr, unsigned short port, unsigned short bufSize) {
 				}
 			}
 		}
+
+		if (userInp == "File") {
+			FileTransfer();
+			getline(cin, clearBuf);
+		}
 	} while (userInp.size() > 0);
 
 	cout << "Подключение прервано!" << endl;
+}
+
+void Client::FileTransfer() {
+	char *buffer = new char[bufferSize];
+	string userInp;
+	ifstream fin;
+
+	cout << "FILE NAME: ";
+	cin >> userInp;
+
+	if (userInp.size() > 0) {
+		try {
+			fin.open(userInp);
+		}
+		catch (...){
+			cerr << "Ошибка при открытии файла!" << endl;
+			return;
+		}
+
+		int sendMessage = send(clientSock, userInp.c_str(), userInp.size() + 1, 0);
+		if (sendMessage != SOCKET_ERROR) {
+			while (!fin.eof()) {
+				ZeroMemory(buffer, bufferSize);
+				fin.read(buffer, bufferSize);
+
+				sendMessage = send(clientSock, buffer, bufferSize, 0);
+			}
+
+			fin.close();
+
+			int bytesRecv = recv(clientSock, buffer, bufferSize, 0);
+			if (bytesRecv > 0) {
+				cout << "SERVER: " << string(buffer, 0, bytesRecv) << endl;
+			}
+		}
+	}
+
 }
 
 void Client::Disconnect(){

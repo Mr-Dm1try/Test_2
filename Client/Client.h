@@ -11,6 +11,7 @@ private:
 public:
 	Client();
 	void Connect(string addr, unsigned short port, unsigned short bufSize);
+	void FileTransfer();
 	void Disconnect();
 	void Close();
 	~Client();

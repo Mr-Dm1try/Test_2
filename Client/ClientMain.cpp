@@ -55,7 +55,7 @@ int main() {
 		myClient->Disconnect();
 
 		do {
-			cout << "\tПодключиться еще раз? (1/0)" << endl;
+			cout << "\tПодключиться еще раз? (1/0)" << endl << "\t";
 			cin >> sel;
 		} while (sel != 1 && sel != 0);
 
