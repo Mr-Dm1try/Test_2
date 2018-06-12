@@ -76,13 +76,16 @@ void Server::Handle() {
 			cout << "Клиент отсоединен!" << endl;
 			break;
 		}
+		else if (tmp == fEqual) {
+			cout << "CLIENT: " << buffer << endl;
+			FileReceive();
+		}
 		else {
 			cout << "CLIENT: " << buffer << endl;
 			send(clientSock, buffer, bytesRecv + 1, 0);
 		}
 
-		if (tmp == fEqual)
-			FileReceive();
+		
 	}
 
 	closesocket(clientSock);
@@ -108,6 +111,8 @@ void Server::FileReceive() {
 	}
 	
 	fName = buffer;
+	fout.open(fName);		
+	fout.close();
 	while (true) {
 		fout.open(fName, ios_base::app /*| ios_base::binary*/);
 		
