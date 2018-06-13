@@ -94,7 +94,7 @@ void Server::Handle() {
 void Server::FileReceive() {
 	char *buffer = new char[bufferSize];
 	string message, fName;
-	ofstream fout;
+	FILE *file;
 
 	ZeroMemory(buffer, bufferSize);
 
@@ -111,23 +111,24 @@ void Server::FileReceive() {
 	}
 	
 	fName = buffer;
-	fout.open(fName);		
-	fout.close();
+	
+
 	while (true) {
-		fout.open(fName, ios_base::app /*| ios_base::binary*/);
+		char buf[100];
+		fopen_s(&file, fName.c_str(), "ab");
 		
 		int bytesRecv = recv(clientSock, buffer, bufferSize, 0);
 		if (bytesRecv == SOCKET_ERROR) {
 			cerr << "Ошибка получения данных! Клиент отсоединен!" << endl;
 			return;
 		}
-		else if (bytesRecv == 0) {
+		else if (bytesRecv <= 0) {
 			break;
 		}
 
-		fout << buffer;
-		fout.close();
+		fwrite(buffer, 1, bytesRecv, file);
 				
+		fclose(file);
 	}
 	
 	message = "File Received!";

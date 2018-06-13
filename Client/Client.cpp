@@ -64,32 +64,28 @@ void Client::Connect(string addr, unsigned short port, unsigned short bufSize) {
 }
 
 void Client::FileTransfer() {
+	int symb;
 	char *buffer = new char[bufferSize];
 	string userInp;
-	ifstream fin;
+	FILE *file;
 
 	cout << "FILE NAME: ";
 	cin >> userInp;
 
 	if (userInp.size() > 0) {
-		try {
-			fin.open(userInp);
-		}
-		catch (...){
-			cerr << "Ошибка при открытии файла!" << endl;
-			return;
-		}
+		fopen_s(&file, userInp.c_str(), "rb");
 
 		int sendMessage = send(clientSock, userInp.c_str(), userInp.size() + 1, 0);
 		if (sendMessage != SOCKET_ERROR) {
-			while (!fin.eof()) {
-				ZeroMemory(buffer, bufferSize);
-				fin.read(buffer, bufferSize);
-
-				sendMessage = send(clientSock, buffer, bufferSize, 0);
+			while (!feof(file)) {
+				char buf[100];
+				
+				symb = fread(buf, 1, 100, file);
+				
+				sendMessage = send(clientSock, buf, sizeof(buf), 0);
 			}
 
-			fin.close();
+			fclose(file);
 
 			int bytesRecv = recv(clientSock, buffer, bufferSize, 0);
 			if (bytesRecv > 0) {
