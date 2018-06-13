@@ -112,21 +112,17 @@ void Server::FileReceive() {
 	
 	fName = buffer;
 	
-
-	while (true) {
-		char buf[100];
+	char buf[100];
+	while (bytesRecv = recv(clientSock, (char*)&buf, sizeof(buf), 0)) {
+		
 		fopen_s(&file, fName.c_str(), "ab");
 		
-		int bytesRecv = recv(clientSock, buffer, bufferSize, 0);
 		if (bytesRecv == SOCKET_ERROR) {
 			cerr << "Ошибка получения данных! Клиент отсоединен!" << endl;
 			return;
 		}
-		else if (bytesRecv <= 0) {
-			break;
-		}
 
-		fwrite(buffer, 1, bytesRecv, file);
+		fwrite(buf, 1, bytesRecv, file);
 				
 		fclose(file);
 	}

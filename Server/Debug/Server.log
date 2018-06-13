@@ -1,6 +1,2 @@
-﻿  stdafx.cpp
-  Server.cpp
-c:\users\mrdmi\source\repos\test_2\server\server.cpp(117): warning C4101: buf: неиспользованная локальная переменная
-  ServerMain.cpp
-  Создание кода...
+﻿  Server.cpp
   Server.vcxproj -> C:\Users\mrdmi\source\repos\Test_2\Debug\Server.exe
